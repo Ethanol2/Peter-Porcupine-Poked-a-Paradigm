@@ -8,6 +8,10 @@ public class characterController : MonoBehaviour
     public InputAction playerJump;
     public InputAction playerShoot;
 
+    public Vector3 inputMove;
+    public float inputJump;
+    public float inputShoot;
+
     public bool is3D = false;
 
 
@@ -17,6 +21,13 @@ public class characterController : MonoBehaviour
         playerMove.Enable();
         playerJump.Enable();
         playerShoot.Enable();
+    }
+
+    public void OnDisable()
+    {
+        playerMove.Disable();
+        playerJump.Disable();
+        playerShoot.Disable();
     }
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
