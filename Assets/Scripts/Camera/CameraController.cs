@@ -4,8 +4,13 @@ using UnityEngine;
 public class CameraController : MonoBehaviour
 {
     [Header("References")]
-    [SerializeField] private Transform camParent;
-    [SerializeField] private Camera cam;
+    [SerializeField] private Transform _camParent;
+    [SerializeField] private Camera _cam;
+    [SerializeField] private Transform _followTarget;
+
+    [Header("Follow Settings")]
+    [SerializeField] private float _verticalOffset = 2f;
+    [SerializeField, Range(0f, 1f)] private float _followSpeed = 0.1f;
 
     [Header("Camera Parent Positions")]
     [SerializeField] private Transform _2DPosition;
@@ -32,6 +37,13 @@ public class CameraController : MonoBehaviour
             SnapTo3D();
         else
             SnapTo2D();
+
+        GameManager.Instance.On3DChange.AddListener(OnPerspectiveChange);
+    }
+    void Update()
+    {
+        Vector3 targetPosition = new Vector3(0f, _followTarget.localPosition.y + _verticalOffset, 0f);
+        this.transform.localPosition = Vector3.Lerp(this.transform.localPosition, targetPosition, _followSpeed);
     }
 
     public void OnPerspectiveChange(bool is3D)
@@ -43,18 +55,18 @@ public class CameraController : MonoBehaviour
     [ContextMenu("Snap to 2D View")]
     public void SnapTo2D()
     {
-        camParent.localRotation = _2DPosition.localRotation;
-        cam.transform.localPosition = _cam2DPos;
-        cam.fieldOfView = _2DFOV;
-        cam.orthographic = true;
+        _camParent.localRotation = _2DPosition.localRotation;
+        _cam.transform.localPosition = _cam2DPos;
+        _cam.fieldOfView = _2DFOV;
+        _cam.orthographic = true;
     }
     [ContextMenu("Snap to 3D View")]
     public void SnapTo3D()
     {
-        camParent.localRotation = _3DPosition.localRotation;
-        cam.transform.localPosition = _cam3DPos;
-        cam.fieldOfView = _3DFOV;
-        cam.orthographic = false;
+        _camParent.localRotation = _3DPosition.localRotation;
+        _cam.transform.localPosition = _cam3DPos;
+        _cam.fieldOfView = _3DFOV;
+        _cam.orthographic = false;
     }
 
     private IEnumerator TransitionCamera(bool is3D)
@@ -75,25 +87,25 @@ public class CameraController : MonoBehaviour
     private IEnumerator MoveCamera(Vector3 start, Vector3 end, float fovStart, float fovEnd, float duration, float orthoToggleTime, bool isOrthographic)
     {
         bool orthoToggled = false;
-        float t = Mathf.InverseLerp(start.z, end.z, cam.transform.localPosition.z);
+        float t = Mathf.InverseLerp(start.z, end.z, _cam.transform.localPosition.z);
 
         while (t < 1f)
         {
             t += Time.deltaTime / duration;
 
-            cam.transform.localPosition = Vector3.Lerp(start, end, _distanceCurve.Evaluate(t));
-            cam.fieldOfView = Mathf.Lerp(fovStart, fovEnd, _distanceCurve.Evaluate(t));
+            _cam.transform.localPosition = Vector3.Lerp(start, end, _distanceCurve.Evaluate(t));
+            _cam.fieldOfView = Mathf.Lerp(fovStart, fovEnd, _distanceCurve.Evaluate(t));
 
             if (!orthoToggled && t > orthoToggleTime)
             {
-                cam.orthographic = !isOrthographic;
+                _cam.orthographic = !isOrthographic;
             }
 
             yield return null;
         }
 
-        cam.transform.localPosition = end;
-        cam.fieldOfView = fovEnd;
+        _cam.transform.localPosition = end;
+        _cam.fieldOfView = fovEnd;
     }
 
     private IEnumerator MoveParent(Quaternion start, Quaternion end, float duration)
@@ -103,11 +115,11 @@ public class CameraController : MonoBehaviour
         while (t < 1f)
         {
             t += Time.deltaTime / duration;
-            camParent.localRotation = Quaternion.Lerp(start, end, _parentCurve.Evaluate(t));
+            _camParent.localRotation = Quaternion.Lerp(start, end, _parentCurve.Evaluate(t));
 
             yield return null;
         }
 
-        camParent.localRotation = end;
+        _camParent.localRotation = end;
     }
 }
