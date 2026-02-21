@@ -656,9 +656,44 @@ MonoBehaviour:
     m_Interactions: 
     m_SingletonActionBindings: []
     m_Flags: 0
+  playerDash:
+    m_Name: Player Dash
+    m_Type: 0
+    m_ExpectedControlType: 
+    m_Id: f5c51554-a10f-4463-80dc-aab6401d4cf3
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings:
+    - m_Name: 1D Axis
+      m_Id: 9ff9e392-1ac0-43e0-9505-d332c0360052
+      m_Path: 1DAxis
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: 
+      m_Action: Player Dash
+      m_Flags: 4
+    - m_Name: negative
+      m_Id: bbabfdeb-0858-42c6-ab77-b0a7968d8dba
+      m_Path: 
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: 
+      m_Action: Player Dash
+      m_Flags: 8
+    - m_Name: positive
+      m_Id: ab07a0e0-6615-4952-a248-564eff9e47d2
+      m_Path: <Keyboard>/e
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: 
+      m_Action: Player Dash
+      m_Flags: 8
+    m_Flags: 0
   moveSpeed: 3
   jumpForce: 100
   raycastLength: 0.6
+  dashForce: 50
+  dashCooldown: 0
   is3D: 0
 --- !u!54 &731789767
 Rigidbody:
