@@ -162,7 +162,7 @@ Rigidbody:
   m_UseGravity: 1
   m_IsKinematic: 1
   m_Interpolate: 0
-  m_Constraints: 124
+  m_Constraints: 0
   m_CollisionDetection: 0
 --- !u!114 &5867482
 MonoBehaviour:
@@ -176,12 +176,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8d1911c823ab9bcb5a82eaab3e37fec8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlatformEnemy
-  gameManager: {fileID: 0}
-  rb: {fileID: 5867481}
-  speed: 1.5
-  movingLeft: 0
-  startPosition: {fileID: 344273041}
-  platform: {fileID: 1358639607}
+  _walkArea: {fileID: 1358639607}
+  _rb: {fileID: 5867481}
+  _speed: 2
+  _rotationSpeed: 2
+  _forwardMargin: 0.1
+  _movementDirection: {x: 1, y: 0, z: 0}
+  _startPosition: {x: 0, y: 0}
+  _randomXStart: 1
+  _randomZStart: 1
+  _randomMovementDirection: 0
 --- !u!4 &5867483
 Transform:
   m_ObjectHideFlags: 0
@@ -197,37 +201,6 @@ Transform:
   m_Children:
   - {fileID: 1164092598}
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &344273040
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 344273041}
-  m_Layer: 0
-  m_Name: Start Point
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &344273041
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 344273040}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 548480534}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &426489227
 GameObject:
@@ -370,6 +343,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
   is3D: 0
+  _transitionTime: 2
   On3DChange:
     m_PersistentCalls:
       m_Calls:
@@ -440,7 +414,7 @@ Transform:
   m_GameObject: {fileID: 516349085}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.11, y: 0.764, z: 0.249}
+  m_LocalPosition: {x: -0.11, y: 0.764, z: -0.269}
   m_LocalScale: {x: 0.073415, y: 0.073415, z: 0.073415}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -552,9 +526,8 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 426489228}
-  - {fileID: 344273041}
   - {fileID: 1358639606}
+  - {fileID: 426489228}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &570895871
@@ -617,7 +590,7 @@ Camera:
     height: 1
   near clip plane: 0.3
   far clip plane: 1000
-  field of view: 60
+  field of view: 10
   orthographic: 0
   orthographic size: 5
   m_Depth: -1
@@ -644,7 +617,7 @@ Transform:
   m_GameObject: {fileID: 570895871}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -8}
+  m_LocalPosition: {x: 0, y: 0, z: -40}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -865,9 +838,9 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 592529129}
   - {fileID: 1198549324}
   - {fileID: 1878684190}
-  - {fileID: 592529129}
   - {fileID: 1904111062}
   - {fileID: 516349086}
   m_Father: {fileID: 5867483}
@@ -932,7 +905,7 @@ Transform:
   m_GameObject: {fileID: 1198549323}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: 0.27539116, w: 0.96133226}
-  m_LocalPosition: {x: 0.145, y: 0.895, z: 0.2675}
+  m_LocalPosition: {x: 0.145, y: 0.895, z: -0.251}
   m_LocalScale: {x: 0.219955, y: 0.057005, z: 0.037451}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1026,7 +999,7 @@ GameObject:
   - component: {fileID: 1358639606}
   - component: {fileID: 1358639607}
   m_Layer: 0
-  m_Name: Bounds
+  m_Name: Enemy Walk Area
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1062,7 +1035,7 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
@@ -1239,9 +1212,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 1814945015}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 694b59c564634ed3cba9a825b3e5aed3, type: 3}
+  m_Script: {fileID: 11500000, guid: 7aece49dfea476ed5a38ea82d6c8ee2d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CameraController
+  camParent: {fileID: 1178569916}
   cam: {fileID: 570895873}
   _2DPosition: {fileID: 724173210}
   _3DPosition: {fileID: 2031219393}
@@ -1249,7 +1223,79 @@ MonoBehaviour:
   _cam3DPos: {x: 0, y: 0, z: -8}
   _2DFOV: 10
   _3DFOV: 60
-  transitionTime: 2
+  _orthoChangeTime: 0.8
+  _fovCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 1
+      outSlope: 1
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 1
+      outSlope: 1
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  _distanceCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 1
+      outSlope: 1
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 1
+      outSlope: 1
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  _parentCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 1
+      outSlope: 1
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 1
+      outSlope: 1
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &1878684189
 GameObject:
   m_ObjectHideFlags: 0
@@ -1278,7 +1324,7 @@ Transform:
   m_GameObject: {fileID: 1878684189}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: -0.275394, w: 0.9613315}
-  m_LocalPosition: {x: -0.135, y: 0.895, z: 0.2675}
+  m_LocalPosition: {x: -0.135, y: 0.895, z: -0.251}
   m_LocalScale: {x: 0.219955, y: 0.057005, z: 0.037451}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1389,7 +1435,7 @@ Transform:
   m_GameObject: {fileID: 1904111061}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.12, y: 0.764, z: 0.249}
+  m_LocalPosition: {x: 0.12, y: 0.764, z: -0.269}
   m_LocalScale: {x: 0.073415, y: 0.073415, z: 0.073415}
   m_ConstrainProportionsScale: 0
   m_Children: []

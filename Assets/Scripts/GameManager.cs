@@ -3,16 +3,38 @@ using UnityEngine.Events;
 
 public class GameManager : MonoBehaviour
 {
+    private static GameManager _instance;
+
+    [Header("Shift Settings")]
     [SerializeField] private bool is3D = false;
+    [SerializeField] private float _transitionTime = 2f;
 
     public UnityEvent<bool> On3DChange;
 
+    public static GameManager Instance { get { if (_instance == null) { Debug.Log("No Game Manager in the Scene!"); return null; } return _instance; } }
     public bool Is3D => is3D;
+    public float TransitionTime => _transitionTime;
 
-    void Start()
+    void Awake()
     {
-        On3DChange.Invoke(is3D);
+        if (_instance != null)
+        {
+            Debug.Log("Only one Game Manager alowed in the scene at once. Destroying copy");
+            Destroy(this.gameObject);
+            return;
+        }
+        _instance = this;
     }
+
+#if UNITY_EDITOR
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.F1))
+        {
+            Toggle3D();
+        }
+    }
+#endif
 
     [ContextMenu("Toggle 3D")]
     public void Toggle3D() => Toggle3D(!is3D);
