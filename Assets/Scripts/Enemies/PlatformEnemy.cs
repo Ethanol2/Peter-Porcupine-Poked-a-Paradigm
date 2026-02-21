@@ -1,5 +1,8 @@
+using System.Collections;
+using NUnit.Framework;
 using UnityEngine;
 
+[RequireComponent(typeof(Rigidbody))]
 public class PlatformEnemy : MonoBehaviour
 {
     [SerializeField] private Collider _walkArea;
@@ -21,6 +24,9 @@ public class PlatformEnemy : MonoBehaviour
 
     private Vector3 _platformLocalPos;
     private float _turnTimer = 0f;
+    private bool _transitioning = false;
+    private float _platformEdge;
+    private float _zPos;
 
     void OnValidate()
     {
@@ -43,28 +49,37 @@ public class PlatformEnemy : MonoBehaviour
 
         Vector3 pos = Vector3.zero;
         pos.x = (_startPosition.x - 0.5f) * _walkArea.bounds.size.x;
+        pos.z = -0.5f * _walkArea.bounds.size.z;
 
-        if (GameManager.Instance.Is3D)
-        {
-            pos.z = (_startPosition.y - 0.5f) * _walkArea.bounds.size.z;
-        }
-        else
-        {
-            pos.z = -0.5f * _walkArea.bounds.size.z;
-        }
-
-        this.transform.position += pos;
+        this.transform.position += pos + _walkArea.transform.position;
         _platformLocalPos = pos;
+
+        _platformEdge = _walkArea.transform.position.z + (-0.5f * _walkArea.bounds.size.z);
+        _zPos = this.transform.position.z;
 
         if (_randomMovementDirection)
         {
-            _movementDirection = new Vector3(Random.Range(-1f, 1f), 0f, Random.Range(-1f, 1f));
+            _movementDirection = new Vector3(Random.Range(0f, 1f) > 0.5f ? 1f : -1f, 0f, Random.Range(0, 1f) > 0.5f ? 1f : -1f);
         }
+
+    }
+    void OnEnable()
+    {
+        GameManager.Instance.On3DChange.AddListener(On3DChange);
+    }
+    void OnDisable()
+    {
+        GameManager.Instance.On3DChange.RemoveListener(On3DChange);
     }
 
     // Update is called once per frame
     void Update()
     {
+        if (_transitioning)
+        {
+            return;
+        }
+
         if (_turnTimer > 0f)
         {
             _turnTimer -= Time.deltaTime;
@@ -75,7 +90,7 @@ public class PlatformEnemy : MonoBehaviour
             return;
         }
 
-        Move(Time.deltaTime * _speed * Vector3.Scale(_movementDirection, GameManager.Instance.Is3D ? Vector3.one : Vector3.right));
+        Move(Time.deltaTime * _speed * _movementDirection);
 
         if (AtBoundsEdgeX())
         {
@@ -86,14 +101,45 @@ public class PlatformEnemy : MonoBehaviour
         if (AtBoundsEdgeZ())
         {
             _movementDirection.z *= -1f;
-            _turnTimer = _turnAroundWaitTime;
+            this.transform.forward = _movementDirection;
+
             Move(_movementDirection * 0.01f);
         }
     }
 
-    public void On3DChange(bool value)
+    public void On3DChange(bool is3D)
     {
-        //do something
+        StopAllCoroutines();
+        StartCoroutine(Transition(is3D));
+    }
+    private IEnumerator Transition(bool is3D)
+    {
+        _transitioning = true;
+
+        Vector3 start, end;
+        start = end = this.transform.position;
+        if (is3D)
+        {
+            start.z = _platformEdge;
+            end.z = _zPos;
+        }
+        else
+        {
+            start.z = _zPos;
+            end.z = _platformEdge;
+        }
+
+        float t = 0f;
+        while (t < 1f)
+        {
+            t += Time.deltaTime / GameManager.Instance.TransitionTime;
+            this.transform.position = Vector3.Lerp(start, end, t);
+            yield return null;
+        }
+
+        this.transform.position = end;
+
+        _transitioning = false;
     }
 
     private bool AtBoundsEdgeX() => Mathf.Abs(_platformLocalPos.x) > _walkArea.bounds.extents.x;
@@ -101,6 +147,9 @@ public class PlatformEnemy : MonoBehaviour
     private void Move(Vector3 dir)
     {
         _platformLocalPos += dir;
-        this.transform.position += dir;
+        _zPos += dir.z;
+        Vector3 position = this.transform.position + dir;
+        position.z = GameManager.Instance.Is3D ? position.z : _platformEdge;
+        this.transform.position = position;
     }
 }
