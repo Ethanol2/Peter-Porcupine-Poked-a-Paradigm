@@ -7,11 +7,20 @@ public class PlatformEnemy : MonoBehaviour
 {
     [SerializeField] private Collider _walkArea;
     [SerializeField] private Rigidbody _rb;
+    [SerializeField] private Transform _body;
+
+    [Header("Stats")]
+    [SerializeField] private int _health;
 
     [Header("Behaviour")]
     [SerializeField] private float _speed = 2f;
     [SerializeField] private float _turnAroundWaitTime = 1f;
     [SerializeField] private Vector3 _movementDirection = Vector3.zero;
+
+    [Space]
+    [SerializeField] private float _deathAnimTime = 1f;
+    [SerializeField] private AnimationCurve _deathAnimCurve;
+    [SerializeField] private bool _destroyAfterDeath = true;
 
     [Header("Spawning")]
     [Tooltip("Absolute values (0.5 is halfway)")]
@@ -27,6 +36,8 @@ public class PlatformEnemy : MonoBehaviour
     private bool _transitioning = false;
     private float _platformEdge;
     private float _zPos;
+
+    public Vector3 MovementDirection => _movementDirection;
 
     void OnValidate()
     {
@@ -104,6 +115,42 @@ public class PlatformEnemy : MonoBehaviour
             this.transform.forward = _movementDirection;
 
             Move(_movementDirection * 0.01f);
+        }
+    }
+
+    public void TakeHit()
+    {
+        _health--;
+        if (_health <= 0)
+        {
+            StartCoroutine(DeathAnimation());
+        }
+    }
+    [ContextMenu("Kill")]
+    public void Kill()
+    {
+        StartCoroutine(DeathAnimation());
+    }
+    private IEnumerator DeathAnimation()
+    {
+        _movementDirection = Vector3.zero;
+        yield return new WaitWhile(() => _transitioning);
+
+        Vector3 startScale = Vector3.one;
+        Vector3 endScale = new Vector3(1f, 0f, 1f);
+
+        float t = 0f;
+        while (t < 1f)
+        {
+            t += Time.deltaTime / _deathAnimTime;
+            _body.localScale = Vector3.LerpUnclamped(startScale, endScale, _deathAnimCurve.Evaluate(t));
+            yield return null;
+        }
+
+        this.gameObject.SetActive(false);
+        if (_destroyAfterDeath)
+        {
+            Destroy(this.gameObject);
         }
     }
 

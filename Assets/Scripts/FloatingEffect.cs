@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class Floating : MonoBehaviour
+public class FloatingEffect : MonoBehaviour
 {
     [SerializeField] private float _speed = 1f;
     [SerializeField] private float _height = 0.5f;
