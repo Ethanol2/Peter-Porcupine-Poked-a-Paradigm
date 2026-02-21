@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -21,14 +22,16 @@ public class characterController : MonoBehaviour
     public float raycastLength;
     public float dashForce;
 
+    [SerializeField] private Camera cam;
+
 
     public float dashCooldown;
     private float dashTime = 0;
-    
 
-    bool isGrounded = false;
 
-    
+    [SerializeField] private bool isGrounded = false;
+
+    private bool _perspectiveChanging = false;
 
     public bool is3D;
     public void OnEnable()
@@ -50,6 +53,8 @@ public class characterController : MonoBehaviour
     void Start()
     {
         verVel = transform.up * jumpForce;
+        GameManager.Instance.On3DChange.AddListener(On3DChange);
+        cam = Camera.main;
     }
 
     // Update is called once per frame
@@ -64,15 +69,23 @@ public class characterController : MonoBehaviour
 
     private void FixedUpdate()
     {
+        if (_perspectiveChanging)
+        {
+            return;
+        }
 
+        if (!GameManager.Instance.Is3D)
+        {
+            inputMove.z = 0f;
+        }
 
         transform.Translate(inputMove * moveSpeed * Time.fixedDeltaTime);
-        
+
 
         if (getIsGrounded() && inputJump > 0)
         {
             rb.AddForce(verVel, ForceMode.Force);
-            
+
         }
 
         if (inputDash > 0 && dashTime <= 0)
@@ -81,14 +94,53 @@ public class characterController : MonoBehaviour
             dashTime = dashCooldown;
         }
 
-        
+
         Debug.DrawRay(transform.position, Vector3.down * raycastLength, Color.red);
-      
+
     }
 
     private bool getIsGrounded()
     {
-        return Physics.Raycast(transform.position, Vector3.down, raycastLength, LayerMask.GetMask("Floor"));
+        return isGrounded = Physics.Raycast(transform.position, Vector3.down, raycastLength, LayerMask.GetMask("Floor"));
+    }
+
+    private void On3DChange(bool is3d)
+    {
+        if (!is3d)
+        {
+            StartCoroutine(MovePlayerTo2DPlane());
+        }
+        StartCoroutine(FollowCameraForward());
+    }
+    private IEnumerator MovePlayerTo2DPlane()
+    {
+        Vector3 start = this.transform.localPosition;
+        Vector3 end = start;
+        end.z = GameManager.Instance.ZDepth2D;
+
+        float t = 0f;
+        while (t < 1f)
+        {
+            t += Time.deltaTime / GameManager.Instance.TransitionTime;
+            this.transform.localPosition = Vector3.Lerp(start, end, t);
+
+            yield return null;
+        }
+
+        this.transform.localPosition = end;
+    }
+    private IEnumerator FollowCameraForward()
+    {
+        float t = 0f;
+        while (t < 1f)
+        {
+            t += Time.deltaTime / GameManager.Instance.TransitionTime;
+
+            Vector3 forward = Vector3.ProjectOnPlane(cam.transform.forward, this.transform.up);
+            this.transform.forward = forward;
+
+            yield return null;
+        }
     }
 
 

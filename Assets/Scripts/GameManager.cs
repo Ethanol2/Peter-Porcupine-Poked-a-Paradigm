@@ -6,14 +6,18 @@ public class GameManager : MonoBehaviour
     private static GameManager _instance;
 
     [Header("Shift Settings")]
-    [SerializeField] private bool is3D = false;
+    [SerializeField] private bool _is3D = false;
     [SerializeField] private float _transitionTime = 2f;
+
+    [Header("World Settings")]
+    [SerializeField] private float _2DZDepth = -4.85f;
 
     public UnityEvent<bool> On3DChange;
 
     public static GameManager Instance { get { if (_instance == null) { Debug.Log("No Game Manager in the Scene!"); return null; } return _instance; } }
-    public bool Is3D => is3D;
+    public bool Is3D => _is3D;
     public float TransitionTime => _transitionTime;
+    public float ZDepth2D => _2DZDepth;
 
     void Awake()
     {
@@ -37,10 +41,10 @@ public class GameManager : MonoBehaviour
 #endif
 
     [ContextMenu("Toggle 3D")]
-    public void Toggle3D() => Toggle3D(!is3D);
+    public void Toggle3D() => Toggle3D(!_is3D);
     public void Toggle3D(bool value)
     {
-        is3D = value;
-        On3DChange.Invoke(is3D);
+        _is3D = value;
+        On3DChange.Invoke(_is3D);
     }
 }
