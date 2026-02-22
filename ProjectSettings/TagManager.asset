@@ -6,6 +6,8 @@ TagManager:
   tags:
   - Enemy
   - Bullet
+  - Coin
+  - Health
   layers:
   - Default
   - TransparentFX

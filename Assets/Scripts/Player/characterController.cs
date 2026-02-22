@@ -278,4 +278,18 @@ public class characterController : MonoBehaviour
         _perspectiveChanging = false;
     }
 
+    void OnCollisionEnter(Collision collision)
+    {
+        if (collision.rigidbody.tag == "Coin")
+        {
+            Destroy(collision.collider.gameObject);
+            GameManager.Instance.ChangePointsBy(25);
+        }
+        else if (collision.rigidbody.tag == "Health")
+        {
+            GameManager.Instance.ChangeHitpointsBy(1);
+            Destroy(collision.collider.gameObject);
+        }
+    }
+
 }
