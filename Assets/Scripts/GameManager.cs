@@ -33,7 +33,7 @@ public class GameManager : MonoBehaviour
 #if UNITY_EDITOR
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.F1))
+        if (Input.GetKeyDown(KeyCode.Q))
         {
             Toggle3D();
         }

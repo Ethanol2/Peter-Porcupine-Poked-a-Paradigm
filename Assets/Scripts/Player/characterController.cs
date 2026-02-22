@@ -1,4 +1,5 @@
 using System.Collections;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
@@ -18,6 +19,8 @@ public class characterController : MonoBehaviour
     private float inputDash;
     private Vector3 verVel;
 
+    private bool is3Drot;
+
     public float moveSpeed;
     public float jumpForce;
     public float raycastLength;
@@ -31,6 +34,9 @@ public class characterController : MonoBehaviour
 
     public float dashCooldown;
     private float dashTime = 0;
+
+    public float shootCooldown;
+    private float shootTime = 0.5f;
 
 
     public static Vector3 lookDirection;
@@ -71,6 +77,7 @@ public class characterController : MonoBehaviour
     void Update()
     {
         dashTime -= Time.deltaTime;
+        shootTime -= Time.deltaTime;
         inputMove = playerMove.ReadValue<Vector3>();
         inputJump = playerJump.ReadValue<float>();
         inputShoot = playerShoot.ReadValue<float>();
@@ -92,15 +99,17 @@ public class characterController : MonoBehaviour
 
         transform.Translate(inputMove * moveSpeed * Time.fixedDeltaTime);
         
-        if (is3D == false && (inputMove.x != 0 || inputMove.z != 0))
+        if (is3Drot == false && (inputMove.x != 0 || inputMove.z != 0))
         {
             lookDirection = inputMove;
 
         }
 
-        if (is3D == true && (inputMove.x != 0 || inputMove.z != 0))
+        if (is3Drot == true && (inputMove.x != 0 || inputMove.z != 0))
         {
             lookDirection = Quaternion.Euler(0, -45, 0) * inputMove;
+
+            
            
         }
         Debug.DrawRay(transform.position, lookDirection * 2f, Color.cornflowerBlue);
@@ -117,16 +126,19 @@ public class characterController : MonoBehaviour
         }
 
        
-        if (inputShoot > 0)
+        if (inputShoot > 0 && shootTime < 0)
         {
             Instantiate(bullet, transform.position, transform.rotation);
+            shootTime = shootCooldown;
         }
 
         if (inputDash > 0 && dashTime <= 0 && (inputMove.x != 0 || inputMove.z != 0))
         {
-            rb.AddForce(inputMove * dashForce, ForceMode.Force);
+            rb.AddForce(lookDirection * dashForce, ForceMode.Force);
             dashTime = dashCooldown;
+            
         }
+        //Debug.Log(dashTime);
 
     }
     private bool getIsGrounded()
@@ -139,6 +151,7 @@ public class characterController : MonoBehaviour
         if (!is3d)
         {
             StartCoroutine(MovePlayerTo2DPlane());
+            
         }
         StartCoroutine(FollowCameraForward());
     }
@@ -147,6 +160,8 @@ public class characterController : MonoBehaviour
         Vector3 start = this.transform.localPosition;
         Vector3 end = start;
         end.z = GameManager.Instance.ZDepth2D;
+
+        
 
         float t = 0f;
         while (t < 1f)

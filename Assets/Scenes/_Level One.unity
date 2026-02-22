@@ -1462,6 +1462,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 6508781838260869369, guid: 3cb4a1a4899e402448f8c87918f986a5, type: 3}
     - target: {fileID: 5976994385951078475, guid: c08f6da497432b938b9bcc7a3f77ce2b, type: 3}
+      propertyPath: dashForce
+      value: 200
+      objectReference: {fileID: 0}
+    - target: {fileID: 5976994385951078475, guid: c08f6da497432b938b9bcc7a3f77ce2b, type: 3}
       propertyPath: jumpForce
       value: 400
       objectReference: {fileID: 0}
@@ -1472,6 +1476,10 @@ PrefabInstance:
     - target: {fileID: 5976994385951078475, guid: c08f6da497432b938b9bcc7a3f77ce2b, type: 3}
       propertyPath: dashCooldown
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5976994385951078475, guid: c08f6da497432b938b9bcc7a3f77ce2b, type: 3}
+      propertyPath: shootCooldown
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 5976994385951078475, guid: c08f6da497432b938b9bcc7a3f77ce2b, type: 3}
       propertyPath: playerShoot.m_SingletonActionBindings.Array.size
