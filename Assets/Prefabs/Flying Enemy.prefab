@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 397695827000439531}
   m_Layer: 0
   m_Name: Flying Enemy
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -311,7 +311,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7541065534175234995}
   - component: {fileID: 333337532696895480}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Bounds
   m_TagString: Untagged
   m_Icon: {fileID: 0}
