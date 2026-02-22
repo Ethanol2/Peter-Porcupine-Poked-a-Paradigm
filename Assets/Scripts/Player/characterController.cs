@@ -1,7 +1,5 @@
 using System.Collections;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 
 
@@ -30,10 +28,9 @@ public class characterController : MonoBehaviour
 
     [Header("Shooting")]
     public GameObject bullet;
-    [SerializeField] private Transform shootSpawn;
-    [SerializeField] private float shootPower = 10f;
     [SerializeField] private AnimationClip shootAnim;
     [SerializeField] private bool canShoot = true;
+    [SerializeField] private float shootDelay = 0.2f;
 
     [Header("Drop Shadow")]
     [SerializeField] private Transform dropShadow;
@@ -41,10 +38,6 @@ public class characterController : MonoBehaviour
 
     public float dashCooldown;
     private float dashTime = 0;
-
-
-    public float shootCooldown;
-    private float shootTime = 0.5f;
 
     [Header("Animation")]
     [SerializeField] private Animator animator;
@@ -58,6 +51,7 @@ public class characterController : MonoBehaviour
 
 
     private bool _perspectiveChanging = false;
+    private Vector3 _shootDir;
 
     public bool is3D;
     public void OnEnable()
@@ -89,7 +83,6 @@ public class characterController : MonoBehaviour
     void Update()
     {
         dashTime -= Time.deltaTime;
-        shootTime -= Time.deltaTime;
         inputMove = playerMove.ReadValue<Vector3>();
         inputJump = playerJump.ReadValue<float>();
         inputShoot = playerShoot.ReadValue<float>();
@@ -106,6 +99,9 @@ public class characterController : MonoBehaviour
         {
             spriteRenderer.flipX = inputMove.x < 0f;
         }
+
+        if (inputMove.magnitude > 0f)
+            _shootDir = inputMove;
     }
 
     private void FixedUpdate()
@@ -117,18 +113,34 @@ public class characterController : MonoBehaviour
         }
 
         transform.Translate(inputMove * moveSpeed * Time.fixedDeltaTime);
-     
-        if (is3Drot == false && (inputMove.x != 0 || inputMove.z != 0))
 
+        // if (is3Drot == false && (inputMove.x != 0 || inputMove.z != 0))
+
+        // {
+        //     lookDirection = inputMove;
+
+        // }
+
+        // if (is3Drot == true && (inputMove.x != 0 || inputMove.z != 0))
+        // {
+        //     lookDirection = Quaternion.Euler(0, -45, 0) * inputMove;
+        // }
+
+        Vector3 shootZ = Vector3.zero;
+        if (!Mathf.Approximately(_shootDir.z, 0f))
+            shootZ = _shootDir.z < 0 ? -this.transform.forward : this.transform.forward;
+        Vector3 shootX = Vector3.zero;
+        if (_shootDir.x > 0)
         {
-            lookDirection = inputMove;
-
+            shootX = Vector3.Cross(Vector3.up, this.transform.forward);
+        }
+        else if (_shootDir.x < 0)
+        {
+            shootX = -Vector3.Cross(Vector3.up, this.transform.forward);
         }
 
-        if (is3Drot == true && (inputMove.x != 0 || inputMove.z != 0))
-        {
-            lookDirection = Quaternion.Euler(0, -45, 0) * inputMove;
-        }
+        lookDirection = (shootX + shootZ).normalized;
+
         Debug.DrawRay(transform.position, lookDirection * 2f, Color.cornflowerBlue);
         //Debug.DrawRay(transform.position, inputMove * 2f, Color.cornflowerBlue);
 
@@ -143,25 +155,17 @@ public class characterController : MonoBehaviour
         }
 
 
-        if (inputShoot > 0 && shootTime < 0)
-        {
-            Instantiate(bullet, transform.position, transform.rotation);
-            shootTime = shootCooldown;
-
-        }
         if (inputShoot > 0 && canShoot)
         {
-            //Instantiate(bullet, transform.position, transform.rotation);
             animator.SetTrigger("Shoot");
-            StartCoroutine(CooldownShoot());
-
+            StartCoroutine(ShootRoutine());
         }
 
         if (inputDash > 0 && dashTime <= 0 && (inputMove.x != 0 || inputMove.z != 0))
         {
             rb.AddForce(lookDirection * dashForce, ForceMode.Force);
             dashTime = dashCooldown;
-            
+
         }
         //Debug.Log(dashTime);
 
@@ -182,8 +186,6 @@ public class characterController : MonoBehaviour
             dropShadow.position = hit.point;
             dropShadow.gameObject.SetActive(true);
             dropShadow.localScale = Vector3.one * (1f - (hit.distance / dropShadowMaxDist));
-
-            Debug.Log(hit.distance);
         }
         else
         {
@@ -196,7 +198,7 @@ public class characterController : MonoBehaviour
         if (!is3d)
         {
             StartCoroutine(MovePlayerTo2DPlane());
-            
+
         }
         StartCoroutine(FollowCameraForward());
     }
@@ -206,7 +208,7 @@ public class characterController : MonoBehaviour
         Vector3 end = start;
         end.z = GameManager.Instance.ZDepth2D;
 
-        
+
 
         float t = 0f;
         while (t < 1f)
@@ -232,10 +234,15 @@ public class characterController : MonoBehaviour
             yield return null;
         }
     }
-    private IEnumerator CooldownShoot()
+    private IEnumerator ShootRoutine()
     {
         canShoot = false;
-        yield return new WaitForSeconds(shootAnim.length);
+
+        yield return new WaitForSeconds(shootDelay);
+        Instantiate(bullet, transform.position, Quaternion.LookRotation(this.transform.forward));
+
+        yield return new WaitForSeconds(shootAnim.length - shootDelay);
+
         canShoot = true;
     }
 

@@ -384,12 +384,15 @@ MonoBehaviour:
   jumpForce: 100
   raycastLength: 0.6
   dashForce: 50
-  bullet: {fileID: 0}
+  bullet: {fileID: 6508781838260869369, guid: 3cb4a1a4899e402448f8c87918f986a5, type: 3}
   shootSpawn: {fileID: 0}
   shootPower: 10
   shootAnim: {fileID: 7400000, guid: 8b449db29b89c0f008f9a5759f9c4272, type: 2}
   canShoot: 1
+  dropShadow: {fileID: 0}
+  dropShadowMaxDist: 5
   dashCooldown: 0
+  shootCooldown: 0
   animator: {fileID: 7503143070780520543}
   spriteRenderer: {fileID: 7054676657723356776}
   isGrounded: 0
