@@ -158,6 +158,7 @@ public class characterController : MonoBehaviour
         {
             rb.AddForce(verVel, ForceMode.Force);
             animator.SetTrigger("Jump");
+            audioManager.Instance.Play(audioManager.SoundType.Jump);
         }
 
 
@@ -165,12 +166,14 @@ public class characterController : MonoBehaviour
         {
             animator.SetTrigger("Shoot");
             StartCoroutine(ShootRoutine());
+            audioManager.Instance.Play(audioManager.SoundType.Shoot);
         }
 
         if (inputDash > 0 && dashTime <= 0 && (inputMove.x != 0 || inputMove.z != 0))
         {
             rb.AddForce(lookDirection * dashForce, ForceMode.Force);
             dashTime = dashCooldown;
+            audioManager.Instance.Play(audioManager.SoundType.Dash);
 
         }
         //Debug.Log(dashTime);
