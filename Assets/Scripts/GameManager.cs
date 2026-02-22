@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
@@ -110,6 +111,7 @@ public class GameManager : MonoBehaviour
         if (_hitPoints <= 0)
         {
             OnDead.Invoke();
+            SceneManager.LoadScene(2);
         }
     }
 
