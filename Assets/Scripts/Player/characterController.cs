@@ -208,8 +208,6 @@ public class characterController : MonoBehaviour
         Vector3 end = start;
         end.z = GameManager.Instance.ZDepth2D;
 
-
-
         float t = 0f;
         while (t < 1f)
         {
