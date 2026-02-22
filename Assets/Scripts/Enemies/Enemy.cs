@@ -125,10 +125,13 @@ public class Enemy : MonoBehaviour
         if (_health <= 0)
         {
             Destroy(this.gameObject);
+            GameManager.Instance.ChangePointsBy(200);
         }
         float healthNorm = (float)_health / _fullHealth;
         _healthBar.fillAmount = healthNorm;
         _healthBar.color = Color.Lerp(_unhealthy, _healthy, healthNorm);
+
+        GameManager.Instance.ChangePointsBy(50);
     }
 
     void OnCollisionEnter(Collision collision)

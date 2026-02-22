@@ -31,6 +31,8 @@ public class GUIController : MonoBehaviour
 
         GameManager.Instance.OnHealthChange.AddListener(UpdateHealthPoints);
         GameManager.Instance.OnPointsChange.AddListener(UpdateScore);
+
+        UpdateScore(0);
     }
 
     // Update is called once per frame

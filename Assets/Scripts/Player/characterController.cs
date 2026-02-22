@@ -75,6 +75,8 @@ public class characterController : MonoBehaviour
     {
         verVel = transform.up * jumpForce;
         GameManager.Instance.On3DChange.AddListener(On3DChange);
+        GameManager.Instance.OnStunned.AddListener(OnStunned);
+        GameManager.Instance.OnNotStunned.AddListener(OnNotStunned);
         cam = Camera.main;
 
 
@@ -107,8 +109,11 @@ public class characterController : MonoBehaviour
 
     private void FixedUpdate()
     {
-
         if (_perspectiveChanging)
+        {
+            return;
+        }
+        if (GameManager.Instance.Stunned)
         {
             return;
         }
@@ -192,6 +197,15 @@ public class characterController : MonoBehaviour
         {
             dropShadow.gameObject.SetActive(false);
         }
+    }
+
+    private void OnStunned()
+    {
+        spriteRenderer.flipY = true;
+    }
+    private void OnNotStunned()
+    {
+        spriteRenderer.flipY = false;
     }
 
     private void On3DChange(bool is3d)

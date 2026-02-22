@@ -20,6 +20,8 @@ public class GameManager : MonoBehaviour
     [Space]
     [SerializeField] private int _totalHitPoints = 5;
     [SerializeField] private int _hitPoints = 5;
+    [SerializeField] private float _stunTime = 2f;
+    [SerializeField] private float _stunTimer = 0f;
 
     [Space]
     [SerializeField] private int _points = 0;
@@ -28,6 +30,8 @@ public class GameManager : MonoBehaviour
     public UnityEvent<int> OnHealthChange;
     public UnityEvent<int> OnPointsChange;
     public UnityEvent OnDead;
+    public UnityEvent OnStunned;
+    public UnityEvent OnNotStunned;
 
     public static GameManager Instance { get { if (_instance == null) { Debug.Log("No Game Manager in the Scene!"); return null; } return _instance; } }
     public bool Is3D => _is3D;
@@ -35,6 +39,7 @@ public class GameManager : MonoBehaviour
     public float ZDepth2D => _2DZDepth;
     public float InsanityNormalized => _insanity / _insanitySeconds;
     public int MaxHitPoints => _totalHitPoints;
+    public bool Stunned => _stunTimer > 0f;
 
     void Awake()
     {
@@ -68,6 +73,15 @@ public class GameManager : MonoBehaviour
         }
 #endif
 
+        if (_stunTimer > 0f)
+        {
+            _stunTimer -= Time.deltaTime;
+            if (_stunTimer <= 0f)
+            {
+                OnNotStunned.Invoke();
+            }
+        }
+
         if (_devMode) return;
 
         _insanity = Mathf.Clamp(_insanity + Time.deltaTime * (_is3D ? -1f : 1f), 0f, _insanitySeconds);
@@ -87,7 +101,11 @@ public class GameManager : MonoBehaviour
 
     public void ChangeHitpointsBy(int count = 1)
     {
+        if (Stunned) return;
+
         _hitPoints = Mathf.Clamp(_hitPoints + count, 0, _totalHitPoints);
+        _stunTimer = _stunTime;
+        OnStunned.Invoke();
         OnHealthChange.Invoke(_hitPoints);
         if (_hitPoints <= 0)
         {
