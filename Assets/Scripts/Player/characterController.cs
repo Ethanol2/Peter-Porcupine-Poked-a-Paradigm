@@ -208,6 +208,10 @@ public class characterController : MonoBehaviour
         Vector3 end = start;
         end.z = GameManager.Instance.ZDepth2D;
 
+        Vector3 rbVelocity = rb.linearVelocity;
+        rbVelocity.z = 0f;
+        rb.isKinematic = true;
+
         float t = 0f;
         while (t < 1f)
         {
@@ -217,6 +221,8 @@ public class characterController : MonoBehaviour
             yield return null;
         }
 
+        rb.isKinematic = false;
+        rb.linearVelocity = rbVelocity;
         this.transform.localPosition = end;
     }
     private IEnumerator FollowCameraForward()
