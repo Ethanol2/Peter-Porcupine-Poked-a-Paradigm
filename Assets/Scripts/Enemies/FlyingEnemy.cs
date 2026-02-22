@@ -27,7 +27,6 @@ public class FlyingEnemy : Enemy
         _followTarget.y = _floatPosition;
 
         Vector3 pos = Vector3.Lerp(_body.localPosition, _followTarget, _followEase);
-        _3DPatrolDepth = pos.z;
         pos.z = GameManager.Instance.Is3D ? pos.z : _2DPatrolDepth;
         _body.localPosition = pos;
 
@@ -50,13 +49,18 @@ public class FlyingEnemy : Enemy
         {
             _3DPatrolDepth = _patrolArea.bounds.extents.z * _movementDirection.z;
             _movementDirection.z *= -1f;
-            _followTarget = _body.localPosition + (GetMoveDir(_movementDirection) * Time.deltaTime * 10f);
         }
+
+        _followTarget.z = _3DPatrolDepth;
     }
 
     private Vector3 GetMoveDir(Vector3 rawMove)
     {
-        Vector3 moveDir = Vector3.Scale(rawMove, _movementSpeed);
+        Vector3 speed = _movementSpeed;
+        speed.z = 0f;
+        Vector3 moveDir = Vector3.Scale(rawMove, speed);
+
+        _3DPatrolDepth += rawMove.z * _movementSpeed.z;
         return moveDir;
     }
 
@@ -65,10 +69,8 @@ public class FlyingEnemy : Enemy
         Vector3 targetF = _followTarget - _body.localPosition;
         if (!GameManager.Instance.Is3D)
         {
-            targetF.z = 0f;
+            targetF = Vector3.ProjectOnPlane(targetF, Vector3.forward);
         }
-
-        targetF = Vector3.ProjectOnPlane(targetF, Vector3.forward);
         _body.forward = Vector3.Lerp(_body.forward, targetF, _forwardEase);
     }
 }

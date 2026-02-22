@@ -384,7 +384,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
   _is3D: 0
   _transitionTime: 2
+  _devMode: 1
   _2DZDepth: -4.85
+  _insanitySeconds: 10
+  _insanity: 10
+  _totalHitPoints: 5
+  _hitPoints: 5
+  _points: 0
   On3DChange:
     m_PersistentCalls:
       m_Calls:
@@ -400,6 +406,15 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+  OnHealthChange:
+    m_PersistentCalls:
+      m_Calls: []
+  OnPointsChange:
+    m_PersistentCalls:
+      m_Calls: []
+  OnDead:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!4 &436933407
 Transform:
   m_ObjectHideFlags: 0
@@ -498,8 +513,9 @@ MonoBehaviour:
   _randomMovementDirection: 1
   _movementDirection: {x: 0, y: 0, z: 0}
   _movementSpeed: {x: 2, y: 0, z: 2}
-  _floatSpeed: 1
+  _waveCount: 5
   _followEase: 0.001
+  _forwardEase: 0.5
   _turnAroundWaitTime: 2
 --- !u!1 &516349085
 GameObject:
