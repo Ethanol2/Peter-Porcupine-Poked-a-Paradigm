@@ -280,12 +280,12 @@ public class characterController : MonoBehaviour
 
     void OnCollisionEnter(Collision collision)
     {
-        if (collision.rigidbody.tag == "Coin")
+        if (collision.collider.tag == "Coin")
         {
             Destroy(collision.collider.gameObject);
             GameManager.Instance.ChangePointsBy(25);
         }
-        else if (collision.rigidbody.tag == "Health")
+        else if (collision.collider.tag == "Health")
         {
             GameManager.Instance.ChangeHitpointsBy(1);
             Destroy(collision.collider.gameObject);
