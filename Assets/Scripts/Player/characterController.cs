@@ -6,6 +6,7 @@ using UnityEngine.InputSystem;
 
 public class characterController : MonoBehaviour
 {
+    [SerializeField] private Camera cam;
     public Rigidbody rb;
     public InputAction playerMove;
     public InputAction playerJump;
@@ -23,21 +24,31 @@ public class characterController : MonoBehaviour
     public float raycastLength;
     public float dashForce;
 
-    [SerializeField] private Camera cam;
 
+    [Header("Shooting")]
     public GameObject bullet;
-    public GameObject shootArea;
+    [SerializeField] private Transform shootSpawn;
+    [SerializeField] private float shootPower = 10f;
+    [SerializeField] private AnimationClip shootAnim;
+    [SerializeField] private bool canShoot = true;
 
+    [Header("Drop Shadow")]
+    [SerializeField] private Transform dropShadow;
+    [SerializeField] private float dropShadowMaxDist = 5f;
 
     public float dashCooldown;
     private float dashTime = 0;
+
+    [Header("Animation")]
+    [SerializeField] private Animator animator;
+    [SerializeField] private SpriteRenderer spriteRenderer;
 
 
     public static Vector3 lookDirection;
 
     [SerializeField] private bool isGrounded = false;
 
-   
+
 
     private bool _perspectiveChanging = false;
 
@@ -75,6 +86,18 @@ public class characterController : MonoBehaviour
         inputJump = playerJump.ReadValue<float>();
         inputShoot = playerShoot.ReadValue<float>();
         inputDash = playerDash.ReadValue<float>();
+
+        if (!GameManager.Instance.Is3D)
+        {
+            inputMove.z = 0f;
+        }
+
+        float absXInput = Mathf.Abs(inputMove.sqrMagnitude);
+        animator.SetFloat("move", absXInput);
+        if (absXInput > 0.1f && !Mathf.Approximately(inputMove.x, 0f))
+        {
+            spriteRenderer.flipX = inputMove.x < 0f;
+        }
     }
 
     private void FixedUpdate()
@@ -85,13 +108,8 @@ public class characterController : MonoBehaviour
             return;
         }
 
-        if (!GameManager.Instance.Is3D)
-        {
-            inputMove.z = 0f;
-        }
-
         transform.Translate(inputMove * moveSpeed * Time.fixedDeltaTime);
-        
+
         if (is3D == false && (inputMove.x != 0 || inputMove.z != 0))
         {
             lookDirection = inputMove;
@@ -101,25 +119,27 @@ public class characterController : MonoBehaviour
         if (is3D == true && (inputMove.x != 0 || inputMove.z != 0))
         {
             lookDirection = Quaternion.Euler(0, -45, 0) * inputMove;
-           
+
         }
         Debug.DrawRay(transform.position, lookDirection * 2f, Color.cornflowerBlue);
         //Debug.DrawRay(transform.position, inputMove * 2f, Color.cornflowerBlue);
 
-
-
+        if (dropShadow)
+            SetDropShadow();
 
 
         if (getIsGrounded() && inputJump > 0)
         {
             rb.AddForce(verVel, ForceMode.Force);
-
+            animator.SetTrigger("Jump");
         }
 
-       
-        if (inputShoot > 0)
+
+        if (inputShoot > 0 && canShoot)
         {
-            Instantiate(bullet, transform.position, transform.rotation);
+            //Instantiate(bullet, transform.position, transform.rotation);
+            animator.SetTrigger("Shoot");
+            StartCoroutine(CooldownShoot());
         }
 
         if (inputDash > 0 && dashTime <= 0 && (inputMove.x != 0 || inputMove.z != 0))
@@ -131,7 +151,27 @@ public class characterController : MonoBehaviour
     }
     private bool getIsGrounded()
     {
-        return isGrounded = Physics.Raycast(transform.position, Vector3.down, raycastLength, LayerMask.GetMask("Floor"));
+        bool grounded = Physics.Raycast(transform.position, Vector3.down, raycastLength, LayerMask.GetMask("Floor"));
+        if (grounded && !isGrounded)
+        {
+            animator.SetTrigger("Land");
+        }
+        return isGrounded = grounded;
+    }
+    private void SetDropShadow()
+    {
+        if (Physics.Raycast(this.transform.position, Vector3.down, out RaycastHit hit, dropShadowMaxDist, LayerMask.GetMask("Floor")))
+        {
+            dropShadow.position = hit.point;
+            dropShadow.gameObject.SetActive(true);
+            dropShadow.localScale = Vector3.one * (1f - (hit.distance / dropShadowMaxDist));
+
+            Debug.Log(hit.distance);
+        }
+        else
+        {
+            dropShadow.gameObject.SetActive(false);
+        }
     }
 
     private void On3DChange(bool is3d)
@@ -171,6 +211,12 @@ public class characterController : MonoBehaviour
 
             yield return null;
         }
+    }
+    private IEnumerator CooldownShoot()
+    {
+        canShoot = false;
+        yield return new WaitForSeconds(shootAnim.length);
+        canShoot = true;
     }
 
 

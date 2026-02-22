@@ -9,7 +9,8 @@ public class CameraController : MonoBehaviour
     [SerializeField] private Transform _followTarget;
 
     [Header("Follow Settings")]
-    [SerializeField] private float _verticalOffset = 2f;
+    [SerializeField] private float _2DVerticalOffset = 2f;
+    [SerializeField] private float _3DVerticalOffset = 0f;
     [SerializeField, Range(0f, 1f)] private float _followSpeed = 0.1f;
 
     [Header("Camera Parent Positions")]
@@ -30,6 +31,8 @@ public class CameraController : MonoBehaviour
     [SerializeField] private AnimationCurve _fovCurve;
     [SerializeField] private AnimationCurve _distanceCurve;
     [SerializeField] private AnimationCurve _parentCurve;
+
+    private float _verticalOffset => GameManager.Instance.Is3D ? _3DVerticalOffset : _2DVerticalOffset;
 
     void Start()
     {
