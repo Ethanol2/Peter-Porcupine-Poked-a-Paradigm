@@ -60,7 +60,7 @@ public class Enemy : MonoBehaviour
 
         _body.localPosition = pos;
 
-        _2DPatrolDepth = -_patrolArea.bounds.extents.z;
+        _2DPatrolDepth = _patrolArea.bounds.center.z - _patrolArea.bounds.extents.z;
         _3DPatrolDepth = 0f;
 
         if (_randomMovementDirection)
