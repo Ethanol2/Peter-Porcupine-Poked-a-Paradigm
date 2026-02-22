@@ -1,4 +1,5 @@
 using System.Collections;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -201,9 +202,9 @@ public class characterController : MonoBehaviour
         if (!is3d)
         {
             StartCoroutine(MovePlayerTo2DPlane());
-
         }
         StartCoroutine(FollowCameraForward());
+        StartCoroutine(PreserveVelocityRoutine(is3D));
     }
     private IEnumerator MovePlayerTo2DPlane()
     {
@@ -247,5 +248,20 @@ public class characterController : MonoBehaviour
         canShoot = true;
     }
 
+    private IEnumerator PreserveVelocityRoutine(bool is3D)
+    {
+        _perspectiveChanging = true;
+
+        Vector3 rbVelocity = rb.linearVelocity;
+        if (!is3D) rbVelocity.z = 0f;
+        rb.isKinematic = true;
+
+        yield return new WaitForSeconds(GameManager.Instance.TransitionTime);
+
+        rb.isKinematic = false;
+        rb.linearVelocity = rbVelocity;
+
+        _perspectiveChanging = false;
+    }
 
 }

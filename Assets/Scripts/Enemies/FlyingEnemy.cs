@@ -6,16 +6,16 @@ public class FlyingEnemy : Enemy
     [SerializeField] private float _waveCount = 5f;
     [SerializeField, Range(0f, 1f)] private float _followEase = 0.1f;
     [SerializeField, Range(0f, 1f)] private float _forwardEase = 0.5f;
-    [SerializeField] private float _turnAroundWaitTime = 2f;
 
     private Vector3 _followTarget;
     private float _floatPosition = 0f;
-    private float _turnTimer;
     private float _sineTimer = 0f;
 
     // Update is called once per frame
     void Update()
     {
+        PointGUIAtCamera();
+
         if (_transitioning)
         {
             return;
@@ -27,7 +27,6 @@ public class FlyingEnemy : Enemy
         _followTarget.y = _floatPosition;
 
         Vector3 pos = Vector3.Lerp(_body.localPosition, _followTarget, _followEase);
-        _3DPatrolDepth = pos.z;
         pos.z = GameManager.Instance.Is3D ? pos.z : _2DPatrolDepth;
         _body.localPosition = pos;
 
@@ -43,20 +42,24 @@ public class FlyingEnemy : Enemy
             _body.localPosition = pos;
 
             _movementDirection.x *= -1f;
-            _turnTimer = _turnAroundWaitTime;
             _followTarget = _body.localPosition + (GetMoveDir(_movementDirection) * Time.deltaTime * 10f);
         }
         if (AtBoundsEdgeZ(_3DPatrolDepth))
         {
             _3DPatrolDepth = _patrolArea.bounds.extents.z * _movementDirection.z;
             _movementDirection.z *= -1f;
-            _followTarget = _body.localPosition + (GetMoveDir(_movementDirection) * Time.deltaTime * 10f);
         }
+
+        _followTarget.z = _3DPatrolDepth;
     }
 
     private Vector3 GetMoveDir(Vector3 rawMove)
     {
-        Vector3 moveDir = Vector3.Scale(rawMove, _movementSpeed);
+        Vector3 speed = _movementSpeed;
+        speed.z = 0f;
+        Vector3 moveDir = Vector3.Scale(rawMove, speed);
+
+        _3DPatrolDepth += rawMove.z * _movementSpeed.z;
         return moveDir;
     }
 
@@ -65,10 +68,8 @@ public class FlyingEnemy : Enemy
         Vector3 targetF = _followTarget - _body.localPosition;
         if (!GameManager.Instance.Is3D)
         {
-            targetF.z = 0f;
+            targetF = Vector3.ProjectOnPlane(targetF, Vector3.forward);
         }
-
-        targetF = Vector3.ProjectOnPlane(targetF, Vector3.forward);
         _body.forward = Vector3.Lerp(_body.forward, targetF, _forwardEase);
     }
 }

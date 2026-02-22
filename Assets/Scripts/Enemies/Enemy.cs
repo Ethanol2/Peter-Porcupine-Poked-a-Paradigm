@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.UI;
 
 [RequireComponent(typeof(Rigidbody))]
 public class Enemy : MonoBehaviour
@@ -9,7 +10,11 @@ public class Enemy : MonoBehaviour
     [SerializeField] protected Transform _body;
 
     [Header("Stats")]
-    [SerializeField] protected int _health;
+    [SerializeField] protected int _health = 3;
+    [SerializeField] protected float _healthBarOffset = 12.3f;
+    [SerializeField] private Image _healthBar;
+    [SerializeField] private Transform _healthBarCanvas;
+    [SerializeField] private Color _healthy = Color.softGreen, _unhealthy = Color.softRed;
 
     [Header("Spawning")]
     [SerializeField] protected Vector2 _startPosition;
@@ -24,6 +29,9 @@ public class Enemy : MonoBehaviour
     protected float _2DPatrolDepth;
     protected float _3DPatrolDepth;
     protected bool _transitioning = false;
+    protected Camera _cam;
+
+    private int _fullHealth;
 
     protected virtual void OnValidate()
     {
@@ -59,6 +67,12 @@ public class Enemy : MonoBehaviour
         {
             _movementDirection = new Vector3(Random.Range(0f, 1f) > 0.5f ? 1f : -1f, 0f, Random.Range(0, 1f) > 0.5f ? 1f : -1f);
         }
+
+        _cam = Camera.main;
+        _fullHealth = _health;
+        _healthBar.color = _healthy;
+        _healthBar.fillAmount = 1f;
+        _healthBar.transform.localPosition = Vector3.up * _healthBarOffset;
     }
 
     protected virtual void OnPerspectiveChange(bool is3D)
@@ -98,4 +112,37 @@ public class Enemy : MonoBehaviour
 
     protected bool AtBoundsEdgeX(float x) => Mathf.Abs(x) > _patrolArea.bounds.extents.x;
     protected bool AtBoundsEdgeZ(float z) => Mathf.Abs(z) > _patrolArea.bounds.extents.z;
+    protected void PointGUIAtCamera()
+    {
+        _healthBarCanvas.LookAt(_cam.transform.position);
+        _healthBarCanvas.localPosition = _body.localPosition;
+    }
+
+    [ContextMenu("OnBulletHit")]
+    protected void OnBulletHit()
+    {
+        _health--;
+        if (_health <= 0)
+        {
+            Destroy(this.gameObject);
+        }
+        float healthNorm = (float)_health / _fullHealth;
+        _healthBar.fillAmount = healthNorm;
+        _healthBar.color = Color.Lerp(_unhealthy, _healthy, healthNorm);
+    }
+
+    void OnCollisionEnter(Collision collision)
+    {
+        //Debug.Log("Hit Tag: " + collision.rigidbody.tag);
+        string tag = collision.rigidbody.tag;
+        if (tag == "Bullet")
+        {
+            OnBulletHit();
+            Destroy(collision.rigidbody.gameObject);
+        }
+        else if (tag == "Player")
+        {
+            GameManager.Instance.ChangeHitpointsBy(-1);
+        }
+    }
 }

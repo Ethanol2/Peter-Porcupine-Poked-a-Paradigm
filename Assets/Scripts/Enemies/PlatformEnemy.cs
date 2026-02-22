@@ -17,16 +17,20 @@ public class PlatformEnemy : Enemy
 
     void OnEnable()
     {
-        GameManager.Instance.On3DChange.AddListener(OnPerspectiveChange);
+        if (GameManager.Instance)
+            GameManager.Instance.On3DChange.AddListener(OnPerspectiveChange);
     }
     void OnDisable()
     {
-        GameManager.Instance.On3DChange.RemoveListener(OnPerspectiveChange);
+        if (GameManager.Instance)
+            GameManager.Instance.On3DChange.RemoveListener(OnPerspectiveChange);
     }
 
     // Update is called once per frame
     void Update()
     {
+        PointGUIAtCamera();
+
         if (_transitioning)
         {
             return;

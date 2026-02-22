@@ -8,6 +8,7 @@ public class GameManager : MonoBehaviour
     [Header("Shift Settings")]
     [SerializeField] private bool _is3D = false;
     [SerializeField] private float _transitionTime = 2f;
+    [SerializeField] private bool _devMode = false;
 
     [Header("World Settings")]
     [SerializeField] private float _2DZDepth = -4.85f;
@@ -66,6 +67,8 @@ public class GameManager : MonoBehaviour
             ChangeHitpointsBy(1);
         }
 #endif
+
+        if (_devMode) return;
 
         _insanity = Mathf.Clamp(_insanity + Time.deltaTime * (_is3D ? -1f : 1f), 0f, _insanitySeconds);
         if (_insanity <= 0f)
