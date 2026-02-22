@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 2314529042612310015}
   - component: {fileID: 4032392279534861239}
   - component: {fileID: 4513957767173978160}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Bullet
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -126,7 +126,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: '::'
   rb: {fileID: 4513957767173978160}
-  projectileSpeed: 0
+  projectileSpeed: 1000
+  player: {fileID: 0}
+  projectile: {fileID: 6508781838260869369}
 --- !u!54 &4513957767173978160
 Rigidbody:
   m_ObjectHideFlags: 0
