@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 
 
@@ -24,12 +25,19 @@ public class characterController : MonoBehaviour
 
     [SerializeField] private Camera cam;
 
+    public GameObject bullet;
+    public GameObject shootArea;
+
 
     public float dashCooldown;
     private float dashTime = 0;
 
 
+    public static Vector3 lookDirection;
+
     [SerializeField] private bool isGrounded = false;
+
+   
 
     private bool _perspectiveChanging = false;
 
@@ -55,6 +63,8 @@ public class characterController : MonoBehaviour
         verVel = transform.up * jumpForce;
         GameManager.Instance.On3DChange.AddListener(On3DChange);
         cam = Camera.main;
+
+
     }
 
     // Update is called once per frame
@@ -69,6 +79,7 @@ public class characterController : MonoBehaviour
 
     private void FixedUpdate()
     {
+
         if (_perspectiveChanging)
         {
             return;
@@ -80,6 +91,23 @@ public class characterController : MonoBehaviour
         }
 
         transform.Translate(inputMove * moveSpeed * Time.fixedDeltaTime);
+        
+        if (is3D == false && (inputMove.x != 0 || inputMove.z != 0))
+        {
+            lookDirection = inputMove;
+
+        }
+
+        if (is3D == true && (inputMove.x != 0 || inputMove.z != 0))
+        {
+            lookDirection = Quaternion.Euler(0, -45, 0) * inputMove;
+           
+        }
+        Debug.DrawRay(transform.position, lookDirection * 2f, Color.cornflowerBlue);
+        //Debug.DrawRay(transform.position, inputMove * 2f, Color.cornflowerBlue);
+
+
+
 
 
         if (getIsGrounded() && inputJump > 0)
@@ -88,17 +116,19 @@ public class characterController : MonoBehaviour
 
         }
 
-        if (inputDash > 0 && dashTime <= 0)
+       
+        if (inputShoot > 0)
         {
-            rb.AddForce(transform.forward * dashForce, ForceMode.Force);
+            Instantiate(bullet, transform.position, transform.rotation);
+        }
+
+        if (inputDash > 0 && dashTime <= 0 && (inputMove.x != 0 || inputMove.z != 0))
+        {
+            rb.AddForce(inputMove * dashForce, ForceMode.Force);
             dashTime = dashCooldown;
         }
 
-
-        Debug.DrawRay(transform.position, Vector3.down * raycastLength, Color.red);
-
     }
-
     private bool getIsGrounded()
     {
         return isGrounded = Physics.Raycast(transform.position, Vector3.down, raycastLength, LayerMask.GetMask("Floor"));
