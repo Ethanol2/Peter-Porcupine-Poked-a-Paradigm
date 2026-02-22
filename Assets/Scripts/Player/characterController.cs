@@ -1,4 +1,5 @@
 using System.Collections;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -198,19 +199,15 @@ public class characterController : MonoBehaviour
         if (!is3d)
         {
             StartCoroutine(MovePlayerTo2DPlane());
-
         }
         StartCoroutine(FollowCameraForward());
+        StartCoroutine(PreserveVelocityRoutine(is3D));
     }
     private IEnumerator MovePlayerTo2DPlane()
     {
         Vector3 start = this.transform.localPosition;
         Vector3 end = start;
         end.z = GameManager.Instance.ZDepth2D;
-
-        Vector3 rbVelocity = rb.linearVelocity;
-        rbVelocity.z = 0f;
-        rb.isKinematic = true;
 
         float t = 0f;
         while (t < 1f)
@@ -221,8 +218,6 @@ public class characterController : MonoBehaviour
             yield return null;
         }
 
-        rb.isKinematic = false;
-        rb.linearVelocity = rbVelocity;
         this.transform.localPosition = end;
     }
     private IEnumerator FollowCameraForward()
@@ -250,5 +245,20 @@ public class characterController : MonoBehaviour
         canShoot = true;
     }
 
+    private IEnumerator PreserveVelocityRoutine(bool is3D)
+    {
+        _perspectiveChanging = true;
+
+        Vector3 rbVelocity = rb.linearVelocity;
+        if (!is3D) rbVelocity.z = 0f;
+        rb.isKinematic = true;
+
+        yield return new WaitForSeconds(GameManager.Instance.TransitionTime);
+
+        rb.isKinematic = false;
+        rb.linearVelocity = rbVelocity;
+
+        _perspectiveChanging = false;
+    }
 
 }
