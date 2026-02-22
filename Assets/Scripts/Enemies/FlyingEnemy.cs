@@ -6,16 +6,16 @@ public class FlyingEnemy : Enemy
     [SerializeField] private float _waveCount = 5f;
     [SerializeField, Range(0f, 1f)] private float _followEase = 0.1f;
     [SerializeField, Range(0f, 1f)] private float _forwardEase = 0.5f;
-    [SerializeField] private float _turnAroundWaitTime = 2f;
 
     private Vector3 _followTarget;
     private float _floatPosition = 0f;
-    private float _turnTimer;
     private float _sineTimer = 0f;
 
     // Update is called once per frame
     void Update()
     {
+        PointGUIAtCamera();
+
         if (_transitioning)
         {
             return;
@@ -42,7 +42,6 @@ public class FlyingEnemy : Enemy
             _body.localPosition = pos;
 
             _movementDirection.x *= -1f;
-            _turnTimer = _turnAroundWaitTime;
             _followTarget = _body.localPosition + (GetMoveDir(_movementDirection) * Time.deltaTime * 10f);
         }
         if (AtBoundsEdgeZ(_3DPatrolDepth))

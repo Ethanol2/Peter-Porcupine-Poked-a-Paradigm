@@ -29,6 +29,8 @@ public class PlatformEnemy : Enemy
     // Update is called once per frame
     void Update()
     {
+        PointGUIAtCamera();
+
         if (_transitioning)
         {
             return;
