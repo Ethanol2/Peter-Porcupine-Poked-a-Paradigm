@@ -42,14 +42,13 @@ public class characterController : MonoBehaviour
     public float dashCooldown;
     private float dashTime = 0;
 
-<<<<<<< finishing-what-I-started
+
     public float shootCooldown;
     private float shootTime = 0.5f;
-=======
+
     [Header("Animation")]
     [SerializeField] private Animator animator;
     [SerializeField] private SpriteRenderer spriteRenderer;
->>>>>>> main
 
 
     public static Vector3 lookDirection;
@@ -118,13 +117,9 @@ public class characterController : MonoBehaviour
         }
 
         transform.Translate(inputMove * moveSpeed * Time.fixedDeltaTime);
-<<<<<<< finishing-what-I-started
-        
+     
         if (is3Drot == false && (inputMove.x != 0 || inputMove.z != 0))
-=======
 
-        if (is3D == false && (inputMove.x != 0 || inputMove.z != 0))
->>>>>>> main
         {
             lookDirection = inputMove;
 
@@ -133,12 +128,6 @@ public class characterController : MonoBehaviour
         if (is3Drot == true && (inputMove.x != 0 || inputMove.z != 0))
         {
             lookDirection = Quaternion.Euler(0, -45, 0) * inputMove;
-
-<<<<<<< finishing-what-I-started
-            
-           
-=======
->>>>>>> main
         }
         Debug.DrawRay(transform.position, lookDirection * 2f, Color.cornflowerBlue);
         //Debug.DrawRay(transform.position, inputMove * 2f, Color.cornflowerBlue);
@@ -153,20 +142,19 @@ public class characterController : MonoBehaviour
             animator.SetTrigger("Jump");
         }
 
-<<<<<<< finishing-what-I-started
-       
+
         if (inputShoot > 0 && shootTime < 0)
         {
             Instantiate(bullet, transform.position, transform.rotation);
             shootTime = shootCooldown;
-=======
 
+        }
         if (inputShoot > 0 && canShoot)
         {
             //Instantiate(bullet, transform.position, transform.rotation);
             animator.SetTrigger("Shoot");
             StartCoroutine(CooldownShoot());
->>>>>>> main
+
         }
 
         if (inputDash > 0 && dashTime <= 0 && (inputMove.x != 0 || inputMove.z != 0))
